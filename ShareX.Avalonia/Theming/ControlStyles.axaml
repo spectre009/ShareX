@@ -945,6 +945,13 @@
         <Setter Property="Background" Value="{DynamicResource ShareX.Brush.Separator}"/>
     </Style>
 
+    <!-- Win32 popups are sized in truncated whole pixels, so at fractional DPI scaling a menu can end up slightly
+         shorter than its items. The menu scroller then toggles its arrow buttons, resizing the popup on every hover,
+         which makes the tray menu jump above the taskbar. Hidden keeps wheel and keyboard scrolling without them. -->
+    <Style Selector="ContextMenu.tray-menu /template/ ScrollViewer, ContextMenu.tray-menu MenuItem /template/ ScrollViewer">
+        <Setter Property="VerticalScrollBarVisibility" Value="Hidden"/>
+    </Style>
+
     <!-- Shared compact menu treatment used by main-window, thumbnail and tray menus. -->
     <Style Selector="MenuItem.compact-menu-item">
         <Setter Property="Height" Value="28"/>

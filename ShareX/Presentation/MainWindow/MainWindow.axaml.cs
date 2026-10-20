@@ -225,6 +225,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         anchor.Activate();
 
         ContextMenu menu = BuildContextMenu(_trayMenuBuilder.BuildTrayMenu());
+        menu.Classes.Add("tray-menu");
         menu.Closed += OnTrayMenuClosed;
 
         try

@@ -1,0 +1,163 @@
+# How `git upstream report` reads ShareX/ShareX for this fork (Cortex gitpush, upstreamreport.ts).
+# Read from the working tree, so an edit shows in the next report.
+
+name = "ShareX"
+platform = "windows"
+version_file = "Directory.build.props"
+version_pattern = '<Version>([^<]+)</Version>'
+release_tags = "v*"
+# Never user-facing on their own: agent and CI plumbing, docs, scripts, tests.
+internal_paths = [".agents/", ".claude/", ".github/", "docs/", "Scripts/", "*.md", "**/Tests/**", "**/Test/**"]
+
+# Top-level projects, by the name a user knows them.
+[areas]
+"ShareX.ImageEditor" = "Image editor"
+"ShareX.ImageEditor.App" = "Image editor"
+"ShareX.PhotoEditor" = "Photo Editor"
+"ShareX.ScreenCaptureLib" = "Capture"
+"ShareX.ScreenRecordingLib" = "Recording"
+"ShareX.MediaLib" = "Recording"
+"ShareX.HistoryLib" = "History"
+"ShareX.HelpersLib" = "Core"
+"ShareX.Avalonia" = "Look and feel"
+"ShareX.Icons" = "Icons"
+"ShareX.OCR" = "OCR"
+"ShareX.Tools" = "Tools"
+"ShareX.UploadersLib" = "Uploads"
+"ShareX.ImageEffectsLib" = "Image effects"
+"ShareX.Setup" = "Setup"
+"ShareX.Steam" = "Setup"
+
+# Title words win, first match first; then the folder with the most changed lines.
+[[area]]
+name = "Photo Editor"
+words = ["photo editor", "adjustment", "adjustments", "layer", "layers", "filter", "filters", "marquee", "smart filter"]
+
+[[area]]
+name = "Capture"
+words = ["region capture", "magnifier", "capture toolbar", "ruler", "multi region", "transparent region"]
+
+[[area]]
+name = "Image editor"
+words = ["image editor", "annotation", "annotations", "highlighter", "arrow", "arrows", "freehand", "canvas size"]
+
+[[area]]
+name = "OCR"
+words = ["OCR"]
+
+[[area]]
+name = "Startup"
+words = ["ReadyToRun", "precompile"]
+
+[[area]]
+name = "Recording"
+words = ["recorder", "recording", "record button", "FFmpeg", "GIF", "HEVC", "HDR", "video"]
+paths = ["ShareX/Presentation/ScreenRecording/"]
+
+[[area]]
+name = "Icons"
+words = ["icon pack", "legacy icons", "icon", "icons"]
+
+[[area]]
+name = "After capture"
+words = ["after capture"]
+paths = ["ShareX/Presentation/AfterCapture/"]
+
+[[area]]
+name = "History"
+words = ["history"]
+
+[[area]]
+name = "Stats"
+words = ["stats"]
+
+[[area]]
+name = "Hotkeys"
+words = ["hotkey", "hotkeys"]
+paths = ["ShareX/Presentation/HotkeySettings/"]
+
+[[area]]
+name = "Notifications"
+words = ["toast", "toasts", "notification", "notifications"]
+paths = ["ShareX/Presentation/Notification/"]
+
+[[area]]
+name = "Look and feel"
+words = ["accent", "theme", "compact mode", "spacing", "scroll bar", "scroll bars"]
+
+[[area]]
+name = "Tools"
+words = ["QR code"]
+
+[[area]]
+name = "Main window"
+words = ["list view", "main window", "thumbnail", "thumbnails", "task preview"]
+paths = ["ShareX/Presentation/MainWindow/", "ShareX/Presentation/StartScreen/"]
+
+[[area]]
+name = "Image formats"
+words = ["WebP", "image format", "save image"]
+
+[[area]]
+name = "Settings"
+paths = ["ShareX/Presentation/ApplicationSettings/", "ShareX/Presentation/TaskSettings/"]
+
+[[area]]
+name = "Uploads"
+paths = ["ShareX/Presentation/AfterUpload/", "ShareX/Presentation/BeforeUpload/", "ShareX/Presentation/ClipboardUpload/", "ShareX/Presentation/URLUpload/", "ShareX/Presentation/DragDropUpload/"]
+
+# Last, so the folders above win over it.
+[[area]]
+name = "App"
+paths = ["ShareX/"]
+
+# What this fork changed in upstream code, and how to tell it still works after a merge.
+[[feature]]
+name = "Tray menu stays put at fractional DPI (our cbc933d)"
+files = ["ShareX.Avalonia/Theming/ControlStyles.axaml", "ShareX/Presentation/MainWindow/MainWindow.axaml.cs"]
+symbols = ["ShowTrayMenu", "tray-menu", "VerticalScrollBarVisibility", "MenuScrollViewer"]
+check = "At 135% scaling, right-click the tray icon and move down the menu: it stays put (tray-repro.ps1)"
+
+# What we track that isn't fork code: wishes, open bugs, leads. Matches are evidence for the digest's For us table.
+[[watch]]
+name = "Copy to clipboard before the editor opens"
+issues = [8944]
+words = ["clipboard before"]
+note = "Our wish: the capture should be on the clipboard before the editor opens"
+check = "With Annotate and Copy image on, capture a region: it pastes before you close the editor"
+
+[[watch]]
+name = "Scrolling brings a disabled magnifier back"
+words = ["magnifier"]
+note = "A bug we hit: scrolling during region capture turns a disabled magnifier back on"
+check = "Turn the magnifier off and scroll during region capture: it stays off"
+
+[[watch]]
+name = "Capture originals kept until exit"
+files = ["ShareX/WorkerTask.cs", "ShareX/TaskMetadata.cs", "ShareX/TaskManager.cs"]
+symbols = ["TaskMetadata", "KeepImage", "Metadata"]
+issues = [8848]
+note = "Open: every editor capture keeps its original image (TaskMetadata.Image) until ShareX exits; we plan the fix on top of this sync"
+check = "capture-exp.ps1 -Only editor: region-sized heap blocks after GC stay at 0"
+
+[[watch]]
+name = "Clipboard image leak (Avalonia 12.1.3 to 12.1.5)"
+files = ["ShareX.HelpersLib/Helpers/AvaloniaClipboard.cs", "ShareX.HelpersLib/Helpers/ClipboardHelpers.cs", "ShareX.HelpersLib/Helpers/WindowsClipboard.cs"]
+note = "Avalonia's clipboard writer leaks a bitmap and GDI handles per copied image; our daily build runs Avalonia 12.1.6, which fixes it"
+check = "capture-exp.ps1 -Only clipboard: GDI handles stay flat"
+
+[[watch]]
+name = "Tray menu jumps at 135%"
+words = ["tray menu", "MenuScrollViewer"]
+note = "Our patch cbc933d keeps the tray menu still at fractional DPI (also a fork feature)"
+
+[[watch]]
+name = "GIF output size"
+words = ["GIF"]
+note = "A 5-second 800x450 GIF came out at 5.2 MB"
+check = "Re-run gif-bench.ps1 and compare"
+
+[[watch]]
+name = "Local OCR for classifying captures"
+words = ["OCR"]
+note = "The capture-classification design doc weighs OCR options"

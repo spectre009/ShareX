@@ -27,6 +27,7 @@
 
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
@@ -72,6 +73,8 @@ public partial class HistoryWindow : Window
     private bool _windowPlacementApplied;
     private bool _virtualListLayoutRefreshPending;
 
+    public HistoryColumnLayout ColumnLayout { get; } = new();
+
     private ShareX.HelpersLib.WindowState SavedWindowState =>
         _settings.WindowState ??= new ShareX.HelpersLib.WindowState();
 
@@ -88,8 +91,11 @@ public partial class HistoryWindow : Window
             RoutingStrategies.Bubble, handledEventsToo: true);
         HistoryList.AddHandler(PointerReleasedEvent, OnHistoryPointerReleased,
             RoutingStrategies.Bubble, handledEventsToo: true);
+        HistoryList.AddHandler(KeyDownEvent, OnHistoryListKeyDown, RoutingStrategies.Tunnel);
         _filterTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(220) };
         _filterTimer.Tick += OnFilterTimerTick;
+        ColumnLayout.Changed += (_, _) => UpdateColumnResizers();
+        UpdateColumnResizers();
     }
 
     public HistoryWindow(HistoryManagerSQLite historyManager, HistorySettings settings, HistoryWindowServices services) : this()
@@ -104,6 +110,7 @@ public partial class HistoryWindow : Window
         SearchTextBox.Text = _settings.RememberSearchText ? _settings.SearchText : string.Empty;
         _suppressFilterChanges = false;
         FavoritesButton.Classes.Set("active", _settings.Favorites);
+        ColumnLayout.Load(_settings.Columns);
 
         ApplySavedWindowState();
         Opened += OnOpened;
@@ -497,7 +504,11 @@ public partial class HistoryWindow : Window
             HistoryList.SelectedItem = item;
         }
 
-        if (point.Properties.IsLeftButtonPressed)
+        // Only arm file drag-and-drop when the press lands on an item; otherwise dragging the
+        // scrollbar thumb would start a drag of the selected files and steal the pointer.
+        bool onScrollBar = (e.Source as Visual)?.GetSelfAndVisualAncestors().OfType<ScrollBar>().Any() == true;
+
+        if (point.Properties.IsLeftButtonPressed && container != null && !onScrollBar)
         {
             _dragPointerPressed = e;
             _dragStart = e.GetPosition(HistoryList);
@@ -560,6 +571,8 @@ public partial class HistoryWindow : Window
 
     private void OnHistoryContextMenuOpening(object? sender, CancelEventArgs e)
     {
+        if (sender is not ContextMenu menu) return;
+
         HistoryItem[] selected = GetSelectedItems();
         if (selected.Length == 0)
         {
@@ -567,57 +580,92 @@ public partial class HistoryWindow : Window
             return;
         }
 
-        HistoryItem item = selected[0];
-        bool single = selected.Length == 1;
-        bool url = !string.IsNullOrWhiteSpace(item.URL);
-        bool shortUrl = !string.IsNullOrWhiteSpace(item.ShortenedURL);
-        bool thumbnailUrl = !string.IsNullOrWhiteSpace(item.ThumbnailURL);
-        bool deletionUrl = !string.IsNullOrWhiteSpace(item.DeletionURL);
-        bool validPath = !string.IsNullOrWhiteSpace(item.FilePath) && Path.HasExtension(item.FilePath);
-        bool file = validPath && File.Exists(item.FilePath);
-        bool imageFile = file && FileHelpers.IsImageFile(item.FilePath);
-        bool textFile = file && FileHelpers.IsTextFile(item.FilePath);
-
-        OpenMenu.IsEnabled = single;
-        OpenUrlMenu.IsEnabled = single && url;
-        OpenShortUrlMenu.IsEnabled = single && shortUrl;
-        OpenThumbnailUrlMenu.IsEnabled = single && thumbnailUrl;
-        OpenDeletionUrlMenu.IsEnabled = single && deletionUrl;
-        OpenFileMenu.IsEnabled = single && file;
-        OpenFolderMenu.IsEnabled = single && file;
-        CopyMenu.IsEnabled = true;
-        CopyUrlMenu.IsEnabled = !single || url;
-        CopyShortUrlMenu.IsEnabled = !single || shortUrl;
-        CopyThumbnailUrlMenu.IsEnabled = !single || thumbnailUrl;
-        CopyDeletionUrlMenu.IsEnabled = !single || deletionUrl;
-        CopyFileMenu.IsEnabled = !single || file;
-        CopyImageMenu.IsEnabled = single && imageFile;
-        CopyTextMenu.IsEnabled = single && textFile;
-        CopyFilePathMenu.IsEnabled = !single || validPath;
-        CopyFileNameMenu.IsEnabled = !single || validPath;
-        CopyFileNameExtensionMenu.IsEnabled = !single || validPath;
-        CopyFolderMenu.IsEnabled = !single || validPath;
-        CopyHtmlLinkMenu.IsEnabled = !single || url;
-        CopyHtmlImageMenu.IsEnabled = !single || (url && FileHelpers.IsImageFile(item.URL));
-        CopyHtmlLinkedImageMenu.IsEnabled = !single || (url && FileHelpers.IsImageFile(item.URL) && thumbnailUrl);
-        CopyForumLinkMenu.IsEnabled = CopyHtmlLinkMenu.IsEnabled;
-        CopyForumImageMenu.IsEnabled = CopyHtmlImageMenu.IsEnabled;
-        CopyForumLinkedImageMenu.IsEnabled = CopyHtmlLinkedImageMenu.IsEnabled;
-        CopyMarkdownLinkMenu.IsEnabled = CopyHtmlLinkMenu.IsEnabled;
-        CopyMarkdownImageMenu.IsEnabled = CopyHtmlImageMenu.IsEnabled;
-        CopyMarkdownLinkedImageMenu.IsEnabled = CopyHtmlLinkedImageMenu.IsEnabled;
-        FavoriteMenu.Header = item.Favorite
+        HistoryContextMenuHelpers.UpdateVisibility(menu, selected, _services);
+        FavoriteMenu.Header = selected[0].Favorite
             ? Strings.HistoryWindow_Unfavorite
             : Strings.HistoryWindows_Favorite;
-        TagMenu.IsEnabled = single;
-        EditMenu.IsEnabled = single;
-        RenameMenu.IsEnabled = single && validPath;
-        PreviewMenu.IsEnabled = single && imageFile;
-        UploadMenu.IsEnabled = single && file && _services.UploadFile != null;
-        EditImageMenu.IsEnabled = single && imageFile && _services.EditImage != null;
-        PinMenu.IsEnabled = single && imageFile && _services.PinToScreen != null;
-        AnalyzeMenu.IsEnabled = single && imageFile && _services.AnalyzeImage != null;
     }
+
+    private void UpdateColumnResizers()
+    {
+        HistoryColumn? fillColumn = ColumnLayout.FillColumn;
+
+        // The last visible column fills the remaining width, so its right edge has nothing to resize.
+        foreach (Control cell in ColumnHeaderPanel.Children)
+        {
+            if (cell is Panel panel)
+            {
+                bool resizable = HistoryColumnsPanel.GetColumn(cell) != fillColumn;
+                foreach (Thumb thumb in panel.Children.OfType<Thumb>())
+                {
+                    thumb.IsVisible = resizable;
+                }
+            }
+        }
+    }
+
+    private void OnColumnResizerDragDelta(object? sender, VectorEventArgs e)
+    {
+        if (sender is Control { Parent: Control cell })
+        {
+            ColumnLayout.Resize(HistoryColumnsPanel.GetColumn(cell), e.Vector.X);
+        }
+    }
+
+    private void OnColumnResizerDragCompleted(object? sender, VectorEventArgs e) => SaveColumnLayout();
+
+    private void SaveColumnLayout() => _settings.Columns = ColumnLayout.ToSettings();
+
+    private void OnColumnsMenuOpening(object? sender, CancelEventArgs e)
+    {
+        List<object> items = [];
+
+        foreach (HistoryColumn column in HistoryColumnLayout.ConfigurableColumns)
+        {
+            bool visible = ColumnLayout.IsVisible(column);
+            MenuItem item = new()
+            {
+                Header = GetColumnTitle(column),
+                ToggleType = MenuItemToggleType.CheckBox,
+                IsChecked = visible,
+                // Keep at least one text column visible.
+                IsEnabled = !visible || ColumnLayout.VisibleCount > 1
+            };
+            item.Click += (_, _) =>
+            {
+                ColumnLayout.SetVisible(column, !ColumnLayout.IsVisible(column));
+                SaveColumnLayout();
+            };
+            items.Add(item);
+        }
+
+        items.Add(new Separator());
+
+        MenuItem resetItem = new() { Header = Strings.HistoryWindow_ResetColumns };
+        resetItem.Click += (_, _) =>
+        {
+            ColumnLayout.Reset();
+            SaveColumnLayout();
+        };
+        items.Add(resetItem);
+
+        ColumnsMenu.ItemsSource = items;
+    }
+
+    private static string GetColumnTitle(HistoryColumn column) => column switch
+    {
+        HistoryColumn.Date => Strings.HistoryWindows_Date,
+        HistoryColumn.FileName => Strings.HistoryWindows_File_name,
+        HistoryColumn.FilePath => Strings.HistoryWindows_File_path,
+        HistoryColumn.Type => Strings.HistoryWindows_Type,
+        HistoryColumn.Host => Strings.HistoryWindows_Host,
+        HistoryColumn.URL => Strings.HistoryWindows_URL,
+        HistoryColumn.ShortenedURL => Strings.HistoryWindows_Shortened_URL,
+        HistoryColumn.ProcessName => Strings.HistoryWindow_ProcessName,
+        HistoryColumn.WindowTitle => Strings.HistoryWindow_WindowTitle,
+        HistoryColumn.Tag => Strings.HistoryWindow_Tag,
+        _ => column.ToString()
+    };
 
     private void OnAdvancedClick(object? sender, RoutedEventArgs e)
     {
@@ -1036,7 +1084,7 @@ public partial class HistoryWindow : Window
         if (item != null && File.Exists(item.FilePath) && FileHelpers.IsTextFile(item.FilePath)) ClipboardHelpers.CopyTextFromFile(item.FilePath);
     }
 
-    private void OnCopyFilePathClick(object? sender, RoutedEventArgs e) => CopyValues(item => item.FilePath, item => !string.IsNullOrWhiteSpace(item.FilePath) && Path.HasExtension(item.FilePath));
+    private void OnCopyFilePathClick(object? sender, RoutedEventArgs e) => CopyValues(item => item.FilePath, item => !string.IsNullOrWhiteSpace(item.FilePath));
     private void OnCopyFileNameClick(object? sender, RoutedEventArgs e) => CopyValues(item => Path.GetFileNameWithoutExtension(item.FilePath), item => !string.IsNullOrWhiteSpace(item.FilePath));
     private void OnCopyFileNameWithExtensionClick(object? sender, RoutedEventArgs e) => CopyValues(item => Path.GetFileName(item.FilePath), item => !string.IsNullOrWhiteSpace(item.FilePath));
     private void OnCopyFolderClick(object? sender, RoutedEventArgs e) => CopyValues(item => Path.GetDirectoryName(item.FilePath), item => !string.IsNullOrWhiteSpace(item.FilePath));
@@ -1062,12 +1110,27 @@ public partial class HistoryWindow : Window
             if (ReferenceEquals(_filteredHistoryItems[i], item)) selectedIndex = files.Count;
             files.Add(path);
         }
-        if (_services.ShowImages != null) _services.ShowImages(files, selectedIndex);
-        else _services.ShowImage?.Invoke(item.FilePath);
+        if (_services.ShowImages != null) _services.ShowImages(files, selectedIndex, this);
+        else _services.ShowImage?.Invoke(item.FilePath, this);
     }
 
     private void OnUploadFileClick(object? sender, RoutedEventArgs e) => InvokeFileService(_services.UploadFile, false);
     private void OnEditImageClick(object? sender, RoutedEventArgs e) => InvokeFileService(_services.EditImage, true);
+
+    private void OnEditImageInPhotoEditorClick(object? sender, RoutedEventArgs e) => InvokeFileService(_services.EditImageInPhotoEditor, true);
+    private void OnTrimVideoClick(object? sender, RoutedEventArgs e)
+    {
+        HistoryItem[] items = GetSelectedItems();
+        if (items.Length == 1 && File.Exists(items[0].FilePath) && FileHelpers.IsVideoFile(items[0].FilePath))
+            _services.TrimVideo?.Invoke(items[0].FilePath);
+    }
+    private void OnTrimAnimatedGifClick(object? sender, RoutedEventArgs e)
+    {
+        HistoryItem[] items = GetSelectedItems();
+        if (items.Length == 1 && File.Exists(items[0].FilePath) &&
+            string.Equals(Path.GetExtension(items[0].FilePath), ".gif", StringComparison.OrdinalIgnoreCase))
+            _services.TrimAnimatedGif?.Invoke(items[0].FilePath);
+    }
     private void OnPinToScreenClick(object? sender, RoutedEventArgs e) => InvokeFileService(_services.PinToScreen, true);
     private void OnAnalyzeImageClick(object? sender, RoutedEventArgs e) => InvokeFileService(_services.AnalyzeImage, true);
     private void InvokeFileService(Action<string>? action, bool imageOnly)

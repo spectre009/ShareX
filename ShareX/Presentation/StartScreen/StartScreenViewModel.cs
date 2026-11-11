@@ -25,23 +25,21 @@
 
 #nullable enable
 
-using Avalonia.Platform;
-using ShareX.AvaloniaUI.Theming;
+using Avalonia.Media;
 using ShareX.HelpersLib;
+using ShareX.Icons;
 using ShareX.Localization;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using AvaloniaBitmap = Avalonia.Media.Imaging.Bitmap;
 using AvaloniaColor = Avalonia.Media.Color;
 
 namespace ShareX;
 
-public sealed class StartScreenViewModel : INotifyPropertyChanged, IDisposable
+public sealed class StartScreenViewModel : INotifyPropertyChanged
 {
     private bool _startWithWindows;
     private bool _startWithWindowsEnabled;
@@ -144,6 +142,27 @@ public sealed class StartScreenViewModel : INotifyPropertyChanged, IDisposable
 
     public bool CanEditAccentColor => !UseSystemAccentColor;
 
+    public string IconPackLabel => RemoveTrailingColon(Strings.ApplicationSettingsWindow_IconPackLabel);
+
+    public IReadOnlyList<StartScreenIconPackOption> IconPackOptions { get; } =
+    [
+        new(IconPack.Modern, Strings.ApplicationSettingsWindow_IconPackModern),
+        new(IconPack.Legacy, Strings.ApplicationSettingsWindow_IconPackLegacy)
+    ];
+
+    public StartScreenIconPackOption? SelectedIconPack
+    {
+        get => IconPackOptions.FirstOrDefault(x => x.Value == Settings.ThemeOptions.IconPack);
+        set
+        {
+            if (value != null && Settings.ThemeOptions.IconPack != value.Value)
+            {
+                Settings.ThemeOptions.IconPack = value.Value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     public AvaloniaColor AccentColor
     {
         get => Settings.ThemeOptions.AccentColor;
@@ -225,21 +244,9 @@ public sealed class StartScreenViewModel : INotifyPropertyChanged, IDisposable
             .Select(x => new StartScreenLanguageOption(
                 x,
                 x.GetLocalizedDescription(),
-                LoadLanguageFlag(x),
-                x == SupportedLanguage.Automatic ? LucideIcons.languages : null))
+                LanguageFlags.Get(x),
+                x == SupportedLanguage.Automatic ? AppIcons.Language : null))
             .ToArray();
-
-    private static AvaloniaBitmap? LoadLanguageFlag(SupportedLanguage language)
-    {
-        if (language == SupportedLanguage.Automatic)
-        {
-            return null;
-        }
-
-        string countryCode = LanguageHelper.GetCultureName(language).Split('-')[1].ToLowerInvariant();
-        using Stream stream = AssetLoader.Open(new Uri($"avares://ShareX/Resources/Flags/{countryCode}.png"));
-        return new AvaloniaBitmap(stream);
-    }
 
     private static string NormalizeTheme(string? theme) =>
         string.Equals(theme, "Light", StringComparison.OrdinalIgnoreCase) ? "Light" : "Dark";
@@ -255,28 +262,17 @@ public sealed class StartScreenViewModel : INotifyPropertyChanged, IDisposable
 
         ThemeOptions[0].UpdateDisplayName(Strings.ApplicationSettingsWindow_Dark);
         ThemeOptions[1].UpdateDisplayName(Strings.ApplicationSettingsWindow_Light);
+        IconPackOptions[0].UpdateDisplayName(Strings.ApplicationSettingsWindow_IconPackModern);
+        IconPackOptions[1].UpdateDisplayName(Strings.ApplicationSettingsWindow_IconPackLegacy);
 
         RefreshStartWithWindows();
         OnPropertyChanged(string.Empty);
-    }
-
-    private void DisposeLanguageOptions()
-    {
-        foreach (StartScreenLanguageOption language in LanguageOptions)
-        {
-            language.Flag?.Dispose();
-        }
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
     public event PropertyChangedEventHandler? PropertyChanged;
-
-    public void Dispose()
-    {
-        DisposeLanguageOptions();
-    }
 }
 
 public sealed class StartScreenLanguageOption : INotifyPropertyChanged
@@ -285,15 +281,40 @@ public sealed class StartScreenLanguageOption : INotifyPropertyChanged
 
     public SupportedLanguage Value { get; }
     public string DisplayName => _displayName;
-    public AvaloniaBitmap? Flag { get; }
+    public IImage? Flag { get; }
     public string? IconGlyph { get; }
 
-    public StartScreenLanguageOption(SupportedLanguage value, string displayName, AvaloniaBitmap? flag, string? iconGlyph)
+    public StartScreenLanguageOption(SupportedLanguage value, string displayName, IImage? flag, string? iconGlyph)
     {
         Value = value;
         _displayName = displayName;
         Flag = flag;
         IconGlyph = iconGlyph;
+    }
+
+    public void UpdateDisplayName(string displayName)
+    {
+        if (_displayName != displayName)
+        {
+            _displayName = displayName;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayName)));
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+}
+
+public sealed class StartScreenIconPackOption : INotifyPropertyChanged
+{
+    private string _displayName;
+
+    public IconPack Value { get; }
+    public string DisplayName => _displayName;
+
+    public StartScreenIconPackOption(IconPack value, string displayName)
+    {
+        Value = value;
+        _displayName = displayName;
     }
 
     public void UpdateDisplayName(string displayName)

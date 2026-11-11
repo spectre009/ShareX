@@ -6,9 +6,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>x64;ARM64</Platforms>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    <!-- Raw pointer preprocessing keeps hit testing aligned with the CRT's curved display.
-         Avalonia 12 requires this explicit opt-in; its version is pinned centrally. -->
-    <AvaloniaAccessUnstablePrivateApis>true</AvaloniaAccessUnstablePrivateApis>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +21,11 @@
   <ItemGroup>
     <EmbeddedResource Include="Assets\emoji-catalog.json" />
     <EmbeddedResource Include="Assets\Cursors\*.cur" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The Photo editor applies effect parameters through EffectParameter.Apply. -->
+    <InternalsVisibleTo Include="ShareX.PhotoEditor" />
   </ItemGroup>
 
   <ItemGroup>

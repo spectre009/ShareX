@@ -26,7 +26,7 @@
 #nullable enable
 
 using Avalonia;
-using Avalonia.Platform;
+using ShareX.AvaloniaUI.Imaging;
 using ShareX.HelpersLib;
 using System;
 using System.Collections.ObjectModel;
@@ -35,6 +35,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using ShareX.Icons;
 using AvaloniaBitmap = Avalonia.Media.Imaging.Bitmap;
 using DrawingBitmap = SkiaSharp.SKBitmap;
 using DrawingSize = System.Drawing.Size;
@@ -78,6 +79,9 @@ public sealed class ImageHistoryEntry : INotifyPropertyChanged, IDisposable
     public bool IsFavorite => Item.Favorite;
     public bool HasThumbnail => Thumbnail != null;
     public bool ShowPlaceholder => Thumbnail == null;
+    public bool IsVideo => FileHelpers.IsVideoFile(Item.FilePath);
+    public bool ShowPlayIcon => HasThumbnail && IsVideo;
+    public string PlaceholderIcon => IsVideo ? AppIcons.FileVideo : AppIcons.Image;
 
     public AvaloniaBitmap? Thumbnail
     {
@@ -90,6 +94,7 @@ public sealed class ImageHistoryEntry : INotifyPropertyChanged, IDisposable
             OnPropertyChanged();
             OnPropertyChanged(nameof(HasThumbnail));
             OnPropertyChanged(nameof(ShowPlaceholder));
+            OnPropertyChanged(nameof(ShowPlayIcon));
         }
     }
 
@@ -182,6 +187,9 @@ public sealed class ImageHistoryEntry : INotifyPropertyChanged, IDisposable
     {
         OnPropertyChanged(nameof(FileName));
         OnPropertyChanged(nameof(IsFavorite));
+        OnPropertyChanged(nameof(IsVideo));
+        OnPropertyChanged(nameof(ShowPlayIcon));
+        OnPropertyChanged(nameof(PlaceholderIcon));
     }
 
     public void Dispose()
@@ -204,9 +212,16 @@ public sealed class ImageHistoryThumbnailLoader : IDisposable
     private readonly SemaphoreSlim _workers = new(Math.Clamp(Environment.ProcessorCount / 2, 2, 4));
     private bool _disposed;
 
+    // Thumbnail sizes are layout units; decode at the monitor's pixel density so previews stay sharp on high-DPI displays.
+    public double RenderScaling { get; set; } = 1;
+
     public async Task<AvaloniaBitmap?> LoadAsync(string? filePath, int width, int height, CancellationToken token)
     {
         if (_disposed || token.IsCancellationRequested || string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath)) return null;
+
+        double scaling = double.IsFinite(RenderScaling) && RenderScaling > 1 ? RenderScaling : 1;
+        width = (int)Math.Ceiling(width * scaling);
+        height = (int)Math.Ceiling(height * scaling);
 
         try
         {
@@ -237,8 +252,7 @@ public sealed class ImageHistoryThumbnailLoader : IDisposable
             if (shellThumbnail != null)
             {
                 if (token.IsCancellationRequested) return null;
-                return new AvaloniaBitmap(Avalonia.Platform.PixelFormat.Bgra8888, AlphaFormat.Unpremul, shellThumbnail.GetPixels(),
-                    new PixelSize(shellThumbnail.Width, shellThumbnail.Height), new Vector(96, 96), shellThumbnail.RowBytes);
+                return BitmapConversionHelpers.CreatePreview(shellThumbnail, new PixelSize(width, height));
             }
         }
         catch (OperationCanceledException)
@@ -250,7 +264,7 @@ public sealed class ImageHistoryThumbnailLoader : IDisposable
             DebugHelper.WriteException(ex);
         }
 
-        if (token.IsCancellationRequested) return null;
+        if (token.IsCancellationRequested || FileHelpers.IsVideoFile(filePath)) return null;
         using FileStream stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         AvaloniaBitmap thumbnail = AvaloniaBitmap.DecodeToWidth(stream, width);
         if (token.IsCancellationRequested)

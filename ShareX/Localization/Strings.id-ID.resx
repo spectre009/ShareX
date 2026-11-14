@@ -697,6 +697,9 @@
   <data name="ApplicationSettingsWindow_ShowColumns" xml:space="preserve">
     <value>Tampilkan kolom</value>
   </data>
+  <data name="ApplicationSettingsWindow_ShowCopiedImagesInClipboardHistory" xml:space="preserve">
+    <value>Tampilkan gambar yang disalin di riwayat papan klip</value>
+  </data>
   <data name="ApplicationSettingsWindow_ShowEditWithShareXButtonInWindowsExplorerContextMenu" xml:space="preserve">
     <value>Tampilkan "Edit di editor gambar ShareX" di menu konteks Windows Explorer</value>
   </data>
@@ -3034,6 +3037,9 @@ Apakah Anda ingin membatalkan perekaman layar aktif?</value>
   </data>
   <data name="TaskSettingsWindow_ShareXTaskSettingsFor0" xml:space="preserve">
     <value>ShareX - Pengaturan tugas untuk {0}</value>
+  </data>
+  <data name="TaskSettingsWindow_ShowAutoCopiesInClipboardHistory" xml:space="preserve">
+    <value>Tampilkan salinan otomatis di riwayat papan klip</value>
   </data>
   <data name="TaskSettingsWindow_ShowCenterCrosshair" xml:space="preserve">
     <value>Tampilkan garis silang tengah</value>

@@ -697,6 +697,9 @@
   <data name="ApplicationSettingsWindow_ShowColumns" xml:space="preserve">
     <value>Pokaż kolumny</value>
   </data>
+  <data name="ApplicationSettingsWindow_ShowCopiedImagesInClipboardHistory" xml:space="preserve">
+    <value>Pokazuj skopiowane obrazy w historii schowka</value>
+  </data>
   <data name="ApplicationSettingsWindow_ShowEditWithShareXButtonInWindowsExplorerContextMenu" xml:space="preserve">
     <value>Pokaż przycisk "Edytuj w edytorze obrazów ShareX" w menu kontekstowym Eksploratora Windows</value>
   </data>
@@ -3034,6 +3037,9 @@ Czy chcesz przerwać aktywne nagrywanie ekranu?</value>
   </data>
   <data name="TaskSettingsWindow_ShareXTaskSettingsFor0" xml:space="preserve">
     <value>ShareX - Ustawienia zadania {0}</value>
+  </data>
+  <data name="TaskSettingsWindow_ShowAutoCopiesInClipboardHistory" xml:space="preserve">
+    <value>Pokazuj automatyczne kopie w historii schowka</value>
   </data>
   <data name="TaskSettingsWindow_ShowCenterCrosshair" xml:space="preserve">
     <value>Pokaż środkowy celownik</value>

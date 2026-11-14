@@ -1232,7 +1232,7 @@ namespace ShareX.ImageEditor.Presentation.Views
 
             try
             {
-                await vm.RequestCopyToClipboardAsync();
+                await vm.RequestAutoCopyToClipboardAsync();
             }
             catch (Exception ex)
             {

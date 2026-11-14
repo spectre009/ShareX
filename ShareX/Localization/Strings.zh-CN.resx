@@ -697,6 +697,9 @@
   <data name="ApplicationSettingsWindow_ShowColumns" xml:space="preserve">
     <value>显示列</value>
   </data>
+  <data name="ApplicationSettingsWindow_ShowCopiedImagesInClipboardHistory" xml:space="preserve">
+    <value>在剪贴板历史记录中显示复制的图像</value>
+  </data>
   <data name="ApplicationSettingsWindow_ShowEditWithShareXButtonInWindowsExplorerContextMenu" xml:space="preserve">
     <value>在Windows上下文菜单中显示“使用ShareX图像编辑器编辑”</value>
   </data>
@@ -3034,6 +3037,9 @@
   </data>
   <data name="TaskSettingsWindow_ShareXTaskSettingsFor0" xml:space="preserve">
     <value>ShareX - {0} 的任务设置</value>
+  </data>
+  <data name="TaskSettingsWindow_ShowAutoCopiesInClipboardHistory" xml:space="preserve">
+    <value>在剪贴板历史记录中显示自动复制</value>
   </data>
   <data name="TaskSettingsWindow_ShowCenterCrosshair" xml:space="preserve">
     <value>显示中心十字线</value>

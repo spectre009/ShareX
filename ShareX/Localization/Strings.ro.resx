@@ -697,6 +697,9 @@
   <data name="ApplicationSettingsWindow_ShowColumns" xml:space="preserve">
     <value>Afișați coloanele</value>
   </data>
+  <data name="ApplicationSettingsWindow_ShowCopiedImagesInClipboardHistory" xml:space="preserve">
+    <value>Afișează imaginile copiate în istoricul clipboardului</value>
+  </data>
   <data name="ApplicationSettingsWindow_ShowEditWithShareXButtonInWindowsExplorerContextMenu" xml:space="preserve">
     <value>Afișați butonul "Editați în editorul de imagini ShareX" în meniul contextual al Windows Explorer</value>
   </data>
@@ -3034,6 +3037,9 @@ Vrei să anulezi înregistrarea activă a ecranului?</value>
   </data>
   <data name="TaskSettingsWindow_ShareXTaskSettingsFor0" xml:space="preserve">
     <value>ShareX - Setări pentru sarcina {0}</value>
+  </data>
+  <data name="TaskSettingsWindow_ShowAutoCopiesInClipboardHistory" xml:space="preserve">
+    <value>Afișează copiile automate în istoricul clipboardului</value>
   </data>
   <data name="TaskSettingsWindow_ShowCenterCrosshair" xml:space="preserve">
     <value>Afișează reticulul central</value>

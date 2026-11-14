@@ -697,6 +697,9 @@
   <data name="ApplicationSettingsWindow_ShowColumns" xml:space="preserve">
     <value>कॉलम दिखाएँ</value>
   </data>
+  <data name="ApplicationSettingsWindow_ShowCopiedImagesInClipboardHistory" xml:space="preserve">
+    <value>कॉपी की गई छवियों को क्लिपबोर्ड इतिहास में दिखाएँ</value>
+  </data>
   <data name="ApplicationSettingsWindow_ShowEditWithShareXButtonInWindowsExplorerContextMenu" xml:space="preserve">
     <value>Windows Explorer संदर्भ मेनू में "ShareX छवि संपादक में संपादित करें" बटन दिखाएँ</value>
   </data>
@@ -3034,6 +3037,9 @@
   </data>
   <data name="TaskSettingsWindow_ShareXTaskSettingsFor0" xml:space="preserve">
     <value>ShareX - {0} के लिए कार्य सेटिंग</value>
+  </data>
+  <data name="TaskSettingsWindow_ShowAutoCopiesInClipboardHistory" xml:space="preserve">
+    <value>स्वतः की गई कॉपियों को क्लिपबोर्ड इतिहास में दिखाएँ</value>
   </data>
   <data name="TaskSettingsWindow_ShowCenterCrosshair" xml:space="preserve">
     <value>केंद्र क्रॉसहेयर दिखाएँ</value>

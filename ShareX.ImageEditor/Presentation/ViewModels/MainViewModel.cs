@@ -246,6 +246,22 @@ namespace ShareX.ImageEditor.Presentation.ViewModels
             return InvokeRequestedHandlersAsync(_copyRequested);
         }
 
+        /// <summary>True while the "Auto copy image to clipboard" option, not the Copy button, is asking the host to copy.</summary>
+        public bool IsAutoCopyRequest { get; private set; }
+
+        public async Task RequestAutoCopyToClipboardAsync()
+        {
+            IsAutoCopyRequest = true;
+            try
+            {
+                await RequestCopyToClipboardAsync();
+            }
+            finally
+            {
+                IsAutoCopyRequest = false;
+            }
+        }
+
         private void ShowConfirmationDialog()
         {
             if (IsModalOpen)

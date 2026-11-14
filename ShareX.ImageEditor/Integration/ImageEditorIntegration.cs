@@ -35,6 +35,8 @@ namespace ShareX.ImageEditor.Integration
     public class ImageEditorCallbacks
     {
         public Action<SKBitmap>? CopyImageRequested { get; set; }
+        /// <summary>Copies made by the "Auto copy image to clipboard" option rather than the Copy button; unset, they go to <see cref="CopyImageRequested"/>.</summary>
+        public Action<SKBitmap>? AutoCopyImageRequested { get; set; }
         public Func<SKBitmap, string?, string?>? SaveImageRequested { get; set; }
         public Func<SKBitmap, string?, string?>? SaveImageAsRequested { get; set; }
         public Action<SKBitmap>? PrintImageRequested { get; set; }
@@ -177,7 +179,8 @@ namespace ShareX.ImageEditor.Integration
 
                     if (skBitmap != null)
                     {
-                        events.CopyImageRequested(skBitmap);
+                        Action<SKBitmap>? copy = vm.IsAutoCopyRequest ? events.AutoCopyImageRequested ?? events.CopyImageRequested : events.CopyImageRequested;
+                        copy?.Invoke(skBitmap);
                     }
 
                     return Task.CompletedTask;

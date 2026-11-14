@@ -64,14 +64,16 @@ namespace ShareX.HelpersLib
             catch (Exception e) { DebugHelper.WriteException(e, "Clipboard copy text failed."); return false; }
         }
 
-        public static bool CopyImage(Image img, string fileName = null)
+        /// <param name="showInHistory">Whether Windows clipboard history (Win+V) may keep this copy; null follows <see cref="HelpersOptions.ShowCopiedImagesInClipboardHistory"/>.</param>
+        public static bool CopyImage(Image img, string fileName = null, bool? showInHistory = null)
         {
             if (img == null) return false;
             try
             {
                 using MemoryStream png = new();
                 img.Save(png, ImageFormat.Png);
-                return AvaloniaClipboard.SetImage(png.ToArray(), OperatingSystem.IsWindows() ? CreateDib(img) : null, CreateImageHtml(fileName));
+                return AvaloniaClipboard.SetImage(png.ToArray(), OperatingSystem.IsWindows() ? CreateDib(img) : null, CreateImageHtml(fileName),
+                    showInHistory ?? HelpersOptions.ShowCopiedImagesInClipboardHistory);
             }
             catch (Exception e) { DebugHelper.WriteException(e, "Clipboard copy image failed."); return false; }
         }

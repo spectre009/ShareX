@@ -221,6 +221,9 @@ namespace ShareX
         [Category("Clipboard"), DefaultValue(false), Description("Default .NET method can't copy image with alpha channel to clipboard. When this setting is true, ShareX copies \"PNG\" and 32 bit \"DIB\" to clipboard in order to retain image transparency.")]
         public bool UseAlternativeClipboardCopyImage { get; set; }
 
+        [Category("Clipboard"), DefaultValue(true), Description("Let Windows clipboard history (Win+V) and cloud clipboard keep the images ShareX copies. The image editor's auto-copies have their own setting.")]
+        public bool ShowCopiedImagesInClipboardHistory { get; set; }
+
         [Category("Clipboard"), DefaultValue(false), Description("Default .NET method can't get image with alpha channel from clipboard. When this setting is true, ShareX checks if clipboard contains \"PNG\" or 32 bit \"DIB\" in order to retain image transparency.")]
         public bool UseAlternativeClipboardGetImage { get; set; }
 

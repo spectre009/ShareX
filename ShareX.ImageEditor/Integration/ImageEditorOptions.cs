@@ -62,6 +62,10 @@ namespace ShareX.ImageEditor.Integration
         public bool QuickCrop { get; set; } = true;
         public bool AutoCloseEditorOnTask { get; set; } = false;
         public bool AutoCopyImageToClipboard { get; set; } = false;
+        /// <summary>
+        /// Let Windows clipboard history (Win+V) keep the auto-copies, which are made when the editor opens and after every edit.
+        /// </summary>
+        public bool ShowAutoCopiesInClipboardHistory { get; set; } = false;
         public bool ShowInsertImageDialog { get; set; } = true;
         public bool ShowNotifications { get; set; } = true;
         /// <summary>

@@ -697,6 +697,9 @@
   <data name="ApplicationSettingsWindow_ShowColumns" xml:space="preserve">
     <value>แสดงคอลัมน์</value>
   </data>
+  <data name="ApplicationSettingsWindow_ShowCopiedImagesInClipboardHistory" xml:space="preserve">
+    <value>แสดงรูปภาพที่คัดลอกในประวัติคลิปบอร์ด</value>
+  </data>
   <data name="ApplicationSettingsWindow_ShowEditWithShareXButtonInWindowsExplorerContextMenu" xml:space="preserve">
     <value>แสดงปุ่ม "แก้ไขในตัวแก้ไขรูปภาพ ShareX" ในเมนูบริบทของ Windows Explorer</value>
   </data>
@@ -3034,6 +3037,9 @@
   </data>
   <data name="TaskSettingsWindow_ShareXTaskSettingsFor0" xml:space="preserve">
     <value>ShareX - การตั้งค่างานสำหรับ {0}</value>
+  </data>
+  <data name="TaskSettingsWindow_ShowAutoCopiesInClipboardHistory" xml:space="preserve">
+    <value>แสดงสำเนาอัตโนมัติในประวัติคลิปบอร์ด</value>
   </data>
   <data name="TaskSettingsWindow_ShowCenterCrosshair" xml:space="preserve">
     <value>แสดง กึ่งกลาง เป้าเล็ง</value>

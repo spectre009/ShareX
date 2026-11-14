@@ -934,6 +934,7 @@ internal sealed class TaskSettingsPageBuilder
                 Check(Strings.TaskSettingsWindow_QuickCrop, () => options.QuickCrop, value => options.QuickCrop = value),
                 Check(Strings.TaskSettingsWindow_AutoCloseEditorOnTask, () => options.AutoCloseEditorOnTask, value => options.AutoCloseEditorOnTask = value),
                 Check(Strings.TaskSettingsWindow_AutoCopyImageToClipboard, () => options.AutoCopyImageToClipboard, value => options.AutoCopyImageToClipboard = value),
+                Check(Strings.TaskSettingsWindow_ShowAutoCopiesInClipboardHistory, () => options.ShowAutoCopiesInClipboardHistory, value => options.ShowAutoCopiesInClipboardHistory = value),
                 Check(Strings.TaskSettingsWindow_ShowInsertImageDialog, () => options.ShowInsertImageDialog, value => options.ShowInsertImageDialog = value),
                 Check(Strings.TaskSettingsWindow_AutoExpandCanvas, () => options.AutoExpandCanvas, value => options.AutoExpandCanvas = value),
                 Row(Strings.TaskSettingsWindow_CanvasFillColor, CanvasFillColorPicker(options)),

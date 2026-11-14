@@ -68,11 +68,11 @@ internal static class AvaloniaClipboard
         return true;
     });
 
-    public static bool SetImage(byte[] png, byte[] dib, string html) => DesktopServices.Run(async () =>
+    public static bool SetImage(byte[] png, byte[] dib, string html, bool showInHistory = true) => DesktopServices.Run(async () =>
     {
         if (OperatingSystem.IsWindows())
         {
-            WindowsClipboard.SetImage(DesktopServices.GetWindow().TryGetPlatformHandle()?.Handle ?? IntPtr.Zero, png, dib, html);
+            WindowsClipboard.SetImage(DesktopServices.GetWindow().TryGetPlatformHandle()?.Handle ?? IntPtr.Zero, png, dib, html, showInHistory);
             return true;
         }
         OwnedImageTransfer owned = CreateImageTransfer(png, html);

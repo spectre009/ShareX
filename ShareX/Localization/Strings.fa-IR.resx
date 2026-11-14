@@ -697,6 +697,9 @@
   <data name="ApplicationSettingsWindow_ShowColumns" xml:space="preserve">
     <value>نمایش ستون‌ها</value>
   </data>
+  <data name="ApplicationSettingsWindow_ShowCopiedImagesInClipboardHistory" xml:space="preserve">
+    <value>نمایش تصاویر کپی‌شده در تاریخچه کلیپ‌بورد</value>
+  </data>
   <data name="ApplicationSettingsWindow_ShowEditWithShareXButtonInWindowsExplorerContextMenu" xml:space="preserve">
     <value>دکمه «ویرایش در ویرایشگر تصویر ShareX» را در منوی راست‌کلیک ویندوز اکسپلورر نمایش بده</value>
   </data>
@@ -3034,6 +3037,9 @@ Do you want to abort the active ضبط صفحه?</value>
   </data>
   <data name="TaskSettingsWindow_ShareXTaskSettingsFor0" xml:space="preserve">
     <value>ShareX - تنظیمات وظیفه برای {0}</value>
+  </data>
+  <data name="TaskSettingsWindow_ShowAutoCopiesInClipboardHistory" xml:space="preserve">
+    <value>نمایش کپی‌های خودکار در تاریخچه کلیپ‌بورد</value>
   </data>
   <data name="TaskSettingsWindow_ShowCenterCrosshair" xml:space="preserve">
     <value>نمایش نشانه تقاطع مرکزی</value>

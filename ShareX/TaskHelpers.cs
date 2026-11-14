@@ -1473,6 +1473,11 @@ namespace ShareX
                     using Bitmap img = skBitmap.Copy();
                     CopyImageOnUiThread(img);
                 },
+                AutoCopyImageRequested = (skBitmap) =>
+                {
+                    using Bitmap img = skBitmap.Copy();
+                    CopyImageOnUiThread(img, taskSettings.ToolsSettingsReference.ImageEditorOptions.ShowAutoCopiesInClipboardHistory);
+                },
                 SaveImageRequested = (skBitmap, newFilePath) =>
                 {
                     using Bitmap img = skBitmap.Copy();
@@ -1549,9 +1554,9 @@ namespace ShareX
         private static SKBitmap CopyBitmapForEditor(Bitmap bitmap) => bitmap.Copy();
         private static SKBitmap CopyBitmap(SKBitmap bitmap) => bitmap.Copy();
 
-        private static void CopyImageOnUiThread(Bitmap bmp)
+        private static void CopyImageOnUiThread(Bitmap bmp, bool? showInHistory = null)
         {
-            InvokeOnUiThread(() => ClipboardHelpers.CopyImage(bmp));
+            InvokeOnUiThread(() => ClipboardHelpers.CopyImage(bmp, null, showInHistory));
         }
 
         private static void UploadImageOnUiThread(Bitmap bmp, TaskSettings taskSettings = null)

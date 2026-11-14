@@ -69,6 +69,7 @@ internal static class ApplicationSettingsRuntime
         HelpersOptions.URLEncodeIgnoreEmoji = settings.URLEncodeIgnoreEmoji;
         HelpersOptions.DefaultCopyImageFillBackground = settings.DefaultClipboardCopyImageFillBackground;
         HelpersOptions.UseAlternativeClipboardCopyImage = settings.UseAlternativeClipboardCopyImage;
+        HelpersOptions.ShowCopiedImagesInClipboardHistory = settings.ShowCopiedImagesInClipboardHistory;
         HelpersOptions.UseAlternativeClipboardGetImage = settings.UseAlternativeClipboardGetImage;
         HelpersOptions.RotateImageByExifOrientationData = settings.RotateImageByExifOrientationData;
         HelpersOptions.BrowserPath = settings.BrowserPath;

@@ -35,6 +35,7 @@ namespace ShareX.HelpersLib
         public static ProxyInfo CurrentProxy { get; set; } = new ProxyInfo();
         public static bool DefaultCopyImageFillBackground { get; set; } = true;
         public static bool UseAlternativeClipboardCopyImage { get; set; } = false;
+        public static bool ShowCopiedImagesInClipboardHistory { get; set; } = true;
         public static bool UseAlternativeClipboardGetImage { get; set; } = false;
         public static bool RotateImageByExifOrientationData { get; set; } = true;
         public static string BrowserPath { get; set; } = "";

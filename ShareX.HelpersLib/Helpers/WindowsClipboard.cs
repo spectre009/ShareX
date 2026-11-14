@@ -42,7 +42,7 @@ internal static class WindowsClipboard
     private const int OpenRetryCount = 10;
     private const int OpenRetryDelay = 50;
 
-    public static void SetImage(IntPtr owner, byte[] png, byte[] dib, string html)
+    public static void SetImage(IntPtr owner, byte[] png, byte[] dib, string html, bool showInHistory = true)
     {
         // A null owner makes SetClipboardData fail after EmptyClipboard.
         if (owner == IntPtr.Zero) throw new InvalidOperationException("Clipboard owner window is unavailable.");
@@ -53,6 +53,8 @@ internal static class WindowsClipboard
             SetData(CF_DIB, dib);
             if (png != null) SetData(RegisterFormat(ClipboardHelpers.FORMAT_PNG), png);
             if (!string.IsNullOrEmpty(html)) SetData(RegisterFormat(ClipboardDataFormats.Html), Encoding.UTF8.GetBytes(html + "\0"));
+            // Windows keeps an item that carries this format out of clipboard history (Win+V) and cloud clipboard sync.
+            if (!showInHistory) SetData(RegisterFormat("ExcludeClipboardContentFromMonitorProcessing"), new byte[sizeof(uint)]);
         }
         finally
         {

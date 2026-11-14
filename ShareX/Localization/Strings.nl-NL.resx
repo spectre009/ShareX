@@ -697,6 +697,9 @@
   <data name="ApplicationSettingsWindow_ShowColumns" xml:space="preserve">
     <value>Kolommen weergeven</value>
   </data>
+  <data name="ApplicationSettingsWindow_ShowCopiedImagesInClipboardHistory" xml:space="preserve">
+    <value>Gekopieerde afbeeldingen tonen in de klembordgeschiedenis</value>
+  </data>
   <data name="ApplicationSettingsWindow_ShowEditWithShareXButtonInWindowsExplorerContextMenu" xml:space="preserve">
     <value>Knop "Bewerken in ShareX-afbeeldingseditor" weergeven in contextmenu van Windows Verkenner</value>
   </data>
@@ -3034,6 +3037,9 @@ Do you want to abort the active scherm opname?</value>
   </data>
   <data name="TaskSettingsWindow_ShareXTaskSettingsFor0" xml:space="preserve">
     <value>ShareX - Taakinstellingen voor {0}</value>
+  </data>
+  <data name="TaskSettingsWindow_ShowAutoCopiesInClipboardHistory" xml:space="preserve">
+    <value>Automatische kopieën tonen in de klembordgeschiedenis</value>
   </data>
   <data name="TaskSettingsWindow_ShowCenterCrosshair" xml:space="preserve">
     <value>Middenkruis tonen</value>

@@ -439,8 +439,14 @@
   <data name="RegionCaptureWindow_MoveToolbar" xml:space="preserve">
     <value>Trageți pentru a muta bara de instrumente, faceți dublu clic pentru a-i reseta poziția</value>
   </data>
+  <data name="RegionCaptureWindow_OpenEditorToggle" xml:space="preserve">
+    <value>Deschideți în editorul de imagini</value>
+  </data>
   <data name="RegionCaptureWindow_RectangleRegionTab" xml:space="preserve">
     <value>Regiune de captură (Tab)</value>
+  </data>
+  <data name="RegionCaptureWindow_ShowCursorToggle" xml:space="preserve">
+    <value>Afișează cursorul</value>
   </data>
   <data name="Resume" xml:space="preserve">
     <value>Reia</value>

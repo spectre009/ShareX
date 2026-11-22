@@ -439,8 +439,14 @@
   <data name="RegionCaptureWindow_MoveToolbar" xml:space="preserve">
     <value>Trascina per spostare la barra degli strumenti, fai doppio clic per ripristinarne la posizione</value>
   </data>
+  <data name="RegionCaptureWindow_OpenEditorToggle" xml:space="preserve">
+    <value>Apri nell'editor di immagini</value>
+  </data>
   <data name="RegionCaptureWindow_RectangleRegionTab" xml:space="preserve">
     <value>Cattura Regione (Tab)</value>
+  </data>
+  <data name="RegionCaptureWindow_ShowCursorToggle" xml:space="preserve">
+    <value>Mostra cursore</value>
   </data>
   <data name="Resume" xml:space="preserve">
     <value>Riprendi</value>

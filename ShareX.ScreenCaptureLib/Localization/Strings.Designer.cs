@@ -536,5 +536,11 @@ namespace ShareX.ScreenCaptureLib.Localization {
         public static string RegionCaptureWindow_FreehandRegion {
             get { return ResourceManager.GetString("RegionCaptureWindow_FreehandRegion", resourceCulture); }
         }
+        public static string RegionCaptureWindow_OpenEditorToggle {
+            get { return ResourceManager.GetString("RegionCaptureWindow_OpenEditorToggle", resourceCulture); }
+        }
+        public static string RegionCaptureWindow_ShowCursorToggle {
+            get { return ResourceManager.GetString("RegionCaptureWindow_ShowCursorToggle", resourceCulture); }
+        }
     }
 }

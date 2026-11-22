@@ -439,8 +439,14 @@
   <data name="RegionCaptureWindow_MoveToolbar" xml:space="preserve">
     <value>Træk for at flytte værktøjslinjen, dobbeltklik for at nulstille dens placering</value>
   </data>
+  <data name="RegionCaptureWindow_OpenEditorToggle" xml:space="preserve">
+    <value>Åbn i billededitoren</value>
+  </data>
   <data name="RegionCaptureWindow_RectangleRegionTab" xml:space="preserve">
     <value>Tag billede af område (Tab)</value>
+  </data>
+  <data name="RegionCaptureWindow_ShowCursorToggle" xml:space="preserve">
+    <value>Vis markør</value>
   </data>
   <data name="Resume" xml:space="preserve">
     <value>Fortsæt</value>

@@ -62,4 +62,11 @@ public sealed class AvaloniaRegionCaptureRequest
 
     /// <summary>Cursor draw position in screenshot pixel coordinates.</summary>
     public Point CursorPosition { get; init; }
+
+    /// <summary>
+    /// Shows toolbar toggles for the editor and the cursor, starting in this state. With toggles, the cursor is a
+    /// fixed layer that is drawn into the output only while its toggle is on, instead of a movable annotation.
+    /// Null hides the toggles.
+    /// </summary>
+    public RegionCaptureToggles? Toggles { get; init; }
 }

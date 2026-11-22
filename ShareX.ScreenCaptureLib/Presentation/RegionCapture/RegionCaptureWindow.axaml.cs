@@ -39,6 +39,7 @@ using ShareX.AvaloniaUI.Theming;
 using ShareX.HelpersLib;
 using ShareX.ImageEditor.Core.Annotations;
 using ShareX.ImageEditor.Presentation.Controls;
+using ShareX.ImageEditor.Presentation.Rendering;
 using ShareX.ImageEditor.Presentation.ViewModels;
 using ShareX.ImageEditor.Presentation.Views;
 using SkiaSharp;
@@ -130,6 +131,16 @@ public partial class RegionCaptureWindow : Window
     private bool _closing;
     private Exception? _startupException;
     private double _appliedPixelScaling;
+    private AvaloniaCanvas _cursorLayer = null!;
+    private Image _cursorImage = null!;
+    private Bitmap? _cursorPreviewBitmap;
+    // The per-capture toggles of AvaloniaRegionCaptureRequest.Toggles.
+    private bool _openEditor;
+    private bool _openEditorToggled;
+    private bool _showCursor;
+    // Keys held down, so a held toggle hotkey does not keep toggling with the key repeat.
+    private readonly HashSet<Key> _pressedKeys = [];
+    private bool _isKeyRepeat;
 
     public RegionCaptureWindow()
     {
@@ -143,6 +154,7 @@ public partial class RegionCaptureWindow : Window
         AddHandler(PointerMovedEvent, OnCaptureHostPointerMoved, RoutingStrategies.Tunnel, handledEventsToo: true);
         AddHandler(PointerReleasedEvent, OnCaptureHostPointerReleased, RoutingStrategies.Tunnel, handledEventsToo: true);
         AddHandler(KeyDownEvent, OnCaptureHostKeyDown, RoutingStrategies.Tunnel, handledEventsToo: true);
+        AddHandler(KeyUpEvent, OnCaptureHostKeyUp, RoutingStrategies.Tunnel, handledEventsToo: true);
     }
 
     public RegionCaptureWindow(AvaloniaRegionCaptureRequest request) : this()
@@ -211,6 +223,9 @@ public partial class RegionCaptureWindow : Window
             }
 
             _viewModel?.Dispose();
+            _cursorImage.Source = null;
+            _cursorPreviewBitmap?.Dispose();
+            _cursorPreviewBitmap = null;
             _request?.CursorBitmap?.Dispose();
         }
         catch (Exception ex)
@@ -373,6 +388,8 @@ public partial class RegionCaptureWindow : Window
         _selectionInfoPanel.RenderTransformOrigin = RelativePoint.TopLeft;
         _selectionInfoPanel.RenderTransform = _selectionInfoScale;
         _selectionInfoText = this.FindControl<TextBlock>("SelectionInfoText")!;
+        _cursorLayer = this.FindControl<AvaloniaCanvas>("CursorLayer")!;
+        _cursorImage = this.FindControl<Image>("CursorImage")!;
     }
 
     private void InitializeCaptureWorkspace()
@@ -392,8 +409,10 @@ public partial class RegionCaptureWindow : Window
             UseContinueWorkflow = false,
             AllowAutoExpandCanvas = false
         };
-        _viewModel.SetHostToolbarItems(_request.EnableAnnotations
-            ? RegionCaptureToolbar.CreateItems(_request.RegionCaptureOptions.ToolbarItems)
+        bool showToolbar = _request.EnableAnnotations || _request.Toggles != null;
+        _viewModel.SetHostToolbarItems(showToolbar
+            ? RegionCaptureToolbar.CreateItems(_request.RegionCaptureOptions.ToolbarItems,
+                includeAnnotationTools: _request.EnableAnnotations, includeCaptureToggles: _request.Toggles != null)
             : []);
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
         _viewModel.ToolSelectionRequested += OnAnnotationToolSelected;
@@ -402,7 +421,7 @@ public partial class RegionCaptureWindow : Window
         _editorWorkspace.DataContext = _viewModel;
         _annotationToolbar.DataContext = _viewModel.ToolbarAdapter;
         _editorWorkspace.AttachHostAnnotationToolbar(_annotationToolbar);
-        _annotationToolbar.IsVisible = _request.EnableAnnotations;
+        _annotationToolbar.IsVisible = showToolbar;
         _annotationToolbar.ShowToolOptions = false;
 
         if (_request.RegionCaptureOptions.CompactToolbar)
@@ -427,7 +446,40 @@ public partial class RegionCaptureWindow : Window
         _magnifierPanel.IsVisible = _magnifierView.IsVisible || _pointerInfoPanel.IsVisible;
         _regionToolButton.Classes.Set("active", true);
         _viewModel.SetHostToolbarToolsActive(false);
+        InitializeCaptureToggles();
         Title = Localization.Strings.BaseRegionForm_InitializeComponent_Region_capture;
+    }
+
+    private void InitializeCaptureToggles()
+    {
+        if (_request?.Toggles == null || _viewModel == null)
+        {
+            return;
+        }
+
+        _openEditor = _request.Toggles.OpenEditor;
+        _showCursor = _request.Toggles.ShowCursor;
+        _viewModel.SetHostToolbarItemChecked(RegionCaptureToolbar.OpenEditorToggleItemId, _openEditor);
+        _viewModel.SetHostToolbarItemChecked(RegionCaptureToolbar.ShowCursorToggleItemId, _showCursor);
+
+        if (_request.CursorBitmap != null)
+        {
+            _cursorPreviewBitmap = _request.CursorBitmap.ToAvaloniaBitmap();
+            _cursorImage.Source = _cursorPreviewBitmap;
+            _cursorImage.Width = _request.CursorBitmap.Width;
+            _cursorImage.Height = _request.CursorBitmap.Height;
+            AvaloniaCanvas.SetLeft(_cursorImage, _request.CursorPosition.X);
+            AvaloniaCanvas.SetTop(_cursorImage, _request.CursorPosition.Y);
+            _cursorLayer.Width = _imageWidth;
+            _cursorLayer.Height = _imageHeight;
+        }
+
+        UpdateCursorLayer();
+    }
+
+    private void UpdateCursorLayer()
+    {
+        _cursorLayer.IsVisible = _showCursor && _cursorPreviewBitmap != null;
     }
 
     private void ApplyMagnifierShape()
@@ -550,7 +602,7 @@ public partial class RegionCaptureWindow : Window
         _editorWorkspace.LoadWorkspaceImage(_request.Screenshot, _request.ScreenshotIsOpaque);
         _workspaceOwnsScreenshot = true;
 
-        if (_request.CursorBitmap != null)
+        if (_request.CursorBitmap != null && _request.Toggles == null)
         {
             _editorWorkspace.InsertWorkspaceImageAnnotation(
                 _request.CursorBitmap,
@@ -575,7 +627,7 @@ public partial class RegionCaptureWindow : Window
                 UpdatePixelTransforms();
             }
 
-            if (_request.CursorBitmap != null)
+            if (_request.CursorBitmap != null && _request.Toggles == null)
             {
                 ActivateRegionTool();
             }
@@ -666,9 +718,48 @@ public partial class RegionCaptureWindow : Window
 
     private void OnHostToolbarItemRequested(object? sender, string id)
     {
-        if (RegionCaptureToolbar.GetRegionShape(id) is RegionShape shape)
+        if (RegionCaptureToolbar.IsCaptureToggle(id))
+        {
+            ToggleCaptureOption(id);
+        }
+        else if (RegionCaptureToolbar.GetRegionShape(id) is RegionShape shape)
         {
             ActivateRegionTool(shape);
+        }
+    }
+
+    /// <summary>
+    /// Turns the editor or cursor option on or off for this capture. The active tool and selection are kept, so a toggle
+    /// can be used while drawing a region or annotating.
+    /// </summary>
+    private void ToggleCaptureOption(string id)
+    {
+        if (_request?.Toggles == null || _viewModel == null || _closing || _isKeyRepeat)
+        {
+            return;
+        }
+
+        if (string.Equals(id, RegionCaptureToolbar.OpenEditorToggleItemId, StringComparison.OrdinalIgnoreCase))
+        {
+            _openEditor = !_openEditor;
+            _openEditorToggled = true;
+            _viewModel.SetHostToolbarItemChecked(id, _openEditor);
+        }
+        else
+        {
+            _showCursor = !_showCursor;
+            _viewModel.SetHostToolbarItemChecked(id, _showCursor);
+            UpdateCursorLayer();
+        }
+
+        // A clicked toolbar button keeps the focus, and Enter or Space would then press it again instead of capturing.
+        if (_regionToolActive)
+        {
+            _regionInputSurface.Focus();
+        }
+        else
+        {
+            _editorWorkspace.Focus();
         }
     }
 
@@ -1417,12 +1508,20 @@ public partial class RegionCaptureWindow : Window
 
     private void OnCaptureHostKeyDown(object? sender, KeyEventArgs e)
     {
+        _isKeyRepeat = !_pressedKeys.Add(e.Key);
+
         // Modifier keys alone are not an interaction, e.g. holding Shift while moving to another monitor.
         if (_keyboardInputEnabled && e.Key is not (Key.LeftShift or Key.RightShift or Key.LeftCtrl or Key.RightCtrl or
             Key.LeftAlt or Key.RightAlt or Key.LWin or Key.RWin))
         {
             _captureToolbarFollowsPointer = false;
         }
+    }
+
+    private void OnCaptureHostKeyUp(object? sender, KeyEventArgs e)
+    {
+        _pressedKeys.Remove(e.Key);
+        _isKeyRepeat = false;
     }
 
     private void FollowPointerWithCaptureToolbar(PointerEventArgs e)
@@ -1448,6 +1547,7 @@ public partial class RegionCaptureWindow : Window
     private void OnCaptureHostPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         _captureToolbarFollowsPointer = false;
+        _isKeyRepeat = false;
 
         if (_regionToolActive || _closing || _request == null || !IsEditorWorkspaceSource(e.Source))
         {
@@ -2243,6 +2343,12 @@ public partial class RegionCaptureWindow : Window
             return;
         }
 
+        if (_showCursor && _cursorPreviewBitmap != null && _request.CursorBitmap != null)
+        {
+            using SKCanvas canvas = new SKCanvas(output);
+            canvas.DrawBitmap(_request.CursorBitmap, _request.CursorPosition.X - bounds.X, _request.CursorPosition.Y - bounds.Y);
+        }
+
         if (shapes.Any(shape => !shape.IsRectangle))
         {
             List<SKPath> paths = shapes.Select(shape => shape.CreatePath(-bounds.X, -bounds.Y)).ToList();
@@ -2274,7 +2380,8 @@ public partial class RegionCaptureWindow : Window
             output,
             screenRectangle,
             windowInfo,
-            _viewModel?.IsDirty == true);
+            _viewModel?.IsDirty == true,
+            _openEditorToggled ? _openEditor : null);
         RegionCaptureIntegration.SetLastRegion(screenRectangle, regions.Select(ToScreenRectangle).ToArray());
         _closing = true;
         Close();

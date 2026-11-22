@@ -439,8 +439,14 @@
   <data name="RegionCaptureWindow_MoveToolbar" xml:space="preserve">
     <value>Seret untuk memindahkan bilah alat, klik dua kali untuk mengatur ulang posisinya</value>
   </data>
+  <data name="RegionCaptureWindow_OpenEditorToggle" xml:space="preserve">
+    <value>Buka di editor gambar</value>
+  </data>
   <data name="RegionCaptureWindow_RectangleRegionTab" xml:space="preserve">
     <value>Jepret area (Tab)</value>
+  </data>
+  <data name="RegionCaptureWindow_ShowCursorToggle" xml:space="preserve">
+    <value>Tampilkan kursor</value>
   </data>
   <data name="Resume" xml:space="preserve">
     <value>Lanjutkan</value>

@@ -40,21 +40,35 @@ public static class RegionCaptureToolbar
 {
     public const string EllipseRegionItemId = "RegionEllipse";
     public const string FreehandRegionItemId = "RegionFreehand";
+    public const string OpenEditorToggleItemId = "CaptureOpenEditor";
+    public const string ShowCursorToggleItemId = "CaptureShowCursor";
 
     // The ShareX 21 ellipse and freehand region tools. Hidden until turned on in the toolbar customization.
+    // The toggles change the editor and cursor options for one capture; they are only shown for image captures.
     private static IReadOnlyList<ToolbarHostItemDefinition> CreateRegionItems() =>
     [
         new(EllipseRegionItemId, Strings.RegionCaptureWindow_EllipseRegion, ImageEditorIcons.RegionEllipse, IsVisibleByDefault: false),
-        new(FreehandRegionItemId, Strings.RegionCaptureWindow_FreehandRegion, ImageEditorIcons.RegionFreehand, IsVisibleByDefault: false)
+        new(FreehandRegionItemId, Strings.RegionCaptureWindow_FreehandRegion, ImageEditorIcons.RegionFreehand, IsVisibleByDefault: false),
+        new(OpenEditorToggleItemId, Strings.RegionCaptureWindow_OpenEditorToggle, AppIcons.ImageEditor, DefaultHotkey: "D1", BeginGroupByDefault: true),
+        new(ShowCursorToggleItemId, Strings.RegionCaptureWindow_ShowCursorToggle, AppIcons.Mouse, DefaultHotkey: "D2")
     ];
 
-    public static IReadOnlyList<ToolbarCustomizationItemViewModel> CreateItems(IReadOnlyList<ImageEditorToolbarItemOptions>? options = null)
+    public static IReadOnlyList<ToolbarCustomizationItemViewModel> CreateItems(
+        IReadOnlyList<ImageEditorToolbarItemOptions>? options = null,
+        bool includeAnnotationTools = true,
+        bool includeCaptureToggles = true)
     {
         return ToolbarCustomizationItemViewModel.CreateFromOptions(options, CreateRegionItems())
-            .Where(item => item.IsHostItem ||
-                (item.Tool.HasValue && item.Tool.Value is not EditorTool.Crop and not EditorTool.CutOut))
+            .Where(item => IsCaptureToggle(item.Id)
+                ? includeCaptureToggles
+                : includeAnnotationTools && (item.IsHostItem ||
+                    (item.Tool.HasValue && item.Tool.Value is not EditorTool.Crop and not EditorTool.CutOut)))
             .ToList();
     }
+
+    internal static bool IsCaptureToggle(string id) =>
+        string.Equals(id, OpenEditorToggleItemId, StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(id, ShowCursorToggleItemId, StringComparison.OrdinalIgnoreCase);
 
     internal static RegionShape? GetRegionShape(string id)
     {

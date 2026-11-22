@@ -31,8 +31,13 @@ using System.Drawing;
 
 namespace ShareX.ScreenCaptureLib.Presentation.RegionCapture;
 
+/// <param name="OpenEditorOverride">
+/// The editor toggle's state when the user used it during this capture, which wins over the task's settings;
+/// null when the toggle was not used or not shown.
+/// </param>
 public sealed record AvaloniaRegionCaptureResult(
     SKBitmap Image,
     Rectangle ScreenRectangle,
     WindowInfo? WindowInfo,
-    bool ImageModified);
+    bool ImageModified,
+    bool? OpenEditorOverride = null);

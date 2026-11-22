@@ -55,17 +55,26 @@
         <LayoutTransformControl x:Name="RegionTransform"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center">
-            <Grid x:Name="RegionInputSurface"
-                  Background="Transparent"
-                  Focusable="True"
-                  PointerPressed="OnRegionPointerPressed"
-                  PointerMoved="OnRegionPointerMoved"
-                  PointerReleased="OnRegionPointerReleased"
-                  PointerWheelChanged="OnRegionPointerWheelChanged">
-                <capture:RegionSelectionOverlay x:Name="RegionOverlay"
-                                                AccentBrush="{DynamicResource ShareX.Brush.Accent.Start}"
-                                                IsHitTestVisible="False"/>
-                <Canvas x:Name="RegionResizeNodeCanvas" IsVisible="False"/>
+            <Grid>
+                <!-- The captured cursor while the cursor toggle is on. It is sized to the image so the layer keeps
+                     its position while the region input surface is hidden. -->
+                <Canvas x:Name="CursorLayer" IsHitTestVisible="False" IsVisible="False">
+                    <Image x:Name="CursorImage"
+                           Stretch="Fill"
+                           RenderOptions.BitmapInterpolationMode="None"/>
+                </Canvas>
+                <Grid x:Name="RegionInputSurface"
+                      Background="Transparent"
+                      Focusable="True"
+                      PointerPressed="OnRegionPointerPressed"
+                      PointerMoved="OnRegionPointerMoved"
+                      PointerReleased="OnRegionPointerReleased"
+                      PointerWheelChanged="OnRegionPointerWheelChanged">
+                    <capture:RegionSelectionOverlay x:Name="RegionOverlay"
+                                                    AccentBrush="{DynamicResource ShareX.Brush.Accent.Start}"
+                                                    IsHitTestVisible="False"/>
+                    <Canvas x:Name="RegionResizeNodeCanvas" IsVisible="False"/>
+                </Grid>
             </Grid>
         </LayoutTransformControl>
 

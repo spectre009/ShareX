@@ -439,8 +439,14 @@
   <data name="RegionCaptureWindow_MoveToolbar" xml:space="preserve">
     <value>Przeciągnij, aby przenieść pasek narzędzi; kliknij dwukrotnie, aby przywrócić jego położenie</value>
   </data>
+  <data name="RegionCaptureWindow_OpenEditorToggle" xml:space="preserve">
+    <value>Otwórz w edytorze obrazów</value>
+  </data>
   <data name="RegionCaptureWindow_RectangleRegionTab" xml:space="preserve">
     <value>Przechwytywanie regionu (Tab)</value>
+  </data>
+  <data name="RegionCaptureWindow_ShowCursorToggle" xml:space="preserve">
+    <value>Pokaż kursor</value>
   </data>
   <data name="Resume" xml:space="preserve">
     <value>Ponów</value>

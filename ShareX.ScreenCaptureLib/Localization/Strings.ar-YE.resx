@@ -439,8 +439,14 @@
   <data name="RegionCaptureWindow_MoveToolbar" xml:space="preserve">
     <value>اسحب لنقل شريط الأدوات، وانقر نقرًا مزدوجًا لإعادة تعيين موضعه</value>
   </data>
+  <data name="RegionCaptureWindow_OpenEditorToggle" xml:space="preserve">
+    <value>فتح في محرّر الصور</value>
+  </data>
   <data name="RegionCaptureWindow_RectangleRegionTab" xml:space="preserve">
     <value>التقاط مساحة (Tab)</value>
+  </data>
+  <data name="RegionCaptureWindow_ShowCursorToggle" xml:space="preserve">
+    <value>إظهار المؤشر</value>
   </data>
   <data name="Resume" xml:space="preserve">
     <value>متابعة</value>

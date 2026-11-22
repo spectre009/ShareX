@@ -448,8 +448,16 @@
     <value>Drag to move the toolbar, double-click to reset its position</value>
     <comment>Tooltip of the grip handle at the left end of the region capture toolbar.</comment>
   </data>
+  <data name="RegionCaptureWindow_OpenEditorToggle" xml:space="preserve">
+    <value>Open in image editor</value>
+    <comment>Region capture toolbar toggle button: when on, this capture opens in the image editor afterwards. It applies to the current capture only.</comment>
+  </data>
   <data name="RegionCaptureWindow_RectangleRegionTab" xml:space="preserve">
     <value>Rectangle region (Tab)</value>
+  </data>
+  <data name="RegionCaptureWindow_ShowCursorToggle" xml:space="preserve">
+    <value>Show cursor</value>
+    <comment>Region capture toolbar toggle button: when on, the mouse cursor is included in this capture. It applies to the current capture only.</comment>
   </data>
   <data name="Resume" xml:space="preserve">
     <value>Resume</value>

@@ -439,8 +439,14 @@
   <data name="RegionCaptureWindow_MoveToolbar" xml:space="preserve">
     <value>برای جابه‌جایی نوار ابزار بکشید و برای بازنشانی موقعیت آن دوبار کلیک کنید</value>
   </data>
+  <data name="RegionCaptureWindow_OpenEditorToggle" xml:space="preserve">
+    <value>بازکردن در ویرایشگر عکس</value>
+  </data>
   <data name="RegionCaptureWindow_RectangleRegionTab" xml:space="preserve">
     <value>ضبط ناحیه (Tab)</value>
+  </data>
+  <data name="RegionCaptureWindow_ShowCursorToggle" xml:space="preserve">
+    <value>نمایش نشانگر</value>
   </data>
   <data name="Resume" xml:space="preserve">
     <value>ادامه</value>

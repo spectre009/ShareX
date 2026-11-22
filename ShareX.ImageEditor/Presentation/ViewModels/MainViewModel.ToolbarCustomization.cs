@@ -37,6 +37,7 @@ namespace ShareX.ImageEditor.Presentation.ViewModels
         private readonly ObservableCollection<ToolbarCustomizationItemViewModel> _visibleToolbarItems = new();
         private bool _hostToolbarToolsActive = true;
         private string? _activeHostToolbarItemId;
+        private readonly HashSet<string> _checkedHostToolbarItemIds = new(StringComparer.OrdinalIgnoreCase);
 
         // One editor in ten shows sunglasses for the emoji tool.
         private readonly string _emojiToolIcon = Random.Shared.Next(10) == 0 ? EditorIcons.ToolEmojiSunglasses : EditorIcons.ToolEmoji;
@@ -140,6 +141,17 @@ namespace ShareX.ImageEditor.Presentation.ViewModels
             RefreshToolbarItemActiveStates();
         }
 
+        /// <summary>
+        /// Shows a host toolbar item that turns an option on or off as checked, independently of the active item.
+        /// </summary>
+        public void SetHostToolbarItemChecked(string id, bool isChecked)
+        {
+            if (isChecked ? _checkedHostToolbarItemIds.Add(id) : _checkedHostToolbarItemIds.Remove(id))
+            {
+                RefreshToolbarItemActiveStates();
+            }
+        }
+
         internal void ExecuteToolbarItem(ToolbarCustomizationItemViewModel item)
         {
             if (item.Tool.HasValue)
@@ -206,7 +218,8 @@ namespace ShareX.ImageEditor.Presentation.ViewModels
                 item.IsActive = item.Tool.HasValue
                     ? _hostToolbarToolsActive && item.Tool.Value == ActiveTool
                     : item.IsHostItem
-                    ? string.Equals(item.Id, _activeHostToolbarItemId, StringComparison.OrdinalIgnoreCase)
+                    ? string.Equals(item.Id, _activeHostToolbarItemId, StringComparison.OrdinalIgnoreCase) ||
+                        _checkedHostToolbarItemIds.Contains(item.Id)
                     : item.Id switch
                     {
                         ToolbarCustomizationItemViewModel.BackgroundItemId => IsSettingsPanelOpen,

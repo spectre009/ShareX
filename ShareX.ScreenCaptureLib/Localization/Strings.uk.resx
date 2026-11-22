@@ -439,8 +439,14 @@
   <data name="RegionCaptureWindow_MoveToolbar" xml:space="preserve">
     <value>Перетягніть, щоб перемістити панель інструментів; двічі клацніть, щоб скинути її положення</value>
   </data>
+  <data name="RegionCaptureWindow_OpenEditorToggle" xml:space="preserve">
+    <value>Відкрити у редакторі зображень</value>
+  </data>
   <data name="RegionCaptureWindow_RectangleRegionTab" xml:space="preserve">
     <value>Захоплення області (Tab)</value>
+  </data>
+  <data name="RegionCaptureWindow_ShowCursorToggle" xml:space="preserve">
+    <value>Показувати курсор</value>
   </data>
   <data name="Resume" xml:space="preserve">
     <value>Продовжити</value>

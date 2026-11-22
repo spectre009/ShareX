@@ -439,8 +439,14 @@
   <data name="RegionCaptureWindow_MoveToolbar" xml:space="preserve">
     <value>Sleep om de werkbalk te verplaatsen, dubbelklik om de positie te herstellen</value>
   </data>
+  <data name="RegionCaptureWindow_OpenEditorToggle" xml:space="preserve">
+    <value>Open in afbeeldingsbewerker</value>
+  </data>
   <data name="RegionCaptureWindow_RectangleRegionTab" xml:space="preserve">
     <value>Leg rechthoekige regio vast (Tab)</value>
+  </data>
+  <data name="RegionCaptureWindow_ShowCursorToggle" xml:space="preserve">
+    <value>Cursor weergeven</value>
   </data>
   <data name="Resume" xml:space="preserve">
     <value>Hervatten</value>

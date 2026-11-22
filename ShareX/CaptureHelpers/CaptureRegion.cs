@@ -63,16 +63,14 @@ namespace ShareX
             SKBitmap cursorBitmap = null;
             Point cursorPosition = Point.Empty;
 
-            if (taskSettings.CaptureSettings.ShowCursor)
+            // Captured even when the cursor is off, so the toolbar toggle can turn it on for this capture.
+            CursorData cursorData = new CursorData();
+            if (cursorData.IsVisible)
             {
-                CursorData cursorData = new CursorData();
-                if (cursorData.IsVisible)
-                {
-                    cursorBitmap = cursorData.ToBitmap(frozenScreenshot, screenBounds.Location);
-                    cursorPosition = new Point(
-                        cursorData.DrawPosition.X - screenBounds.X,
-                        cursorData.DrawPosition.Y - screenBounds.Y);
-                }
+                cursorBitmap = cursorData.ToBitmap(frozenScreenshot, screenBounds.Location);
+                cursorPosition = new Point(
+                    cursorData.DrawPosition.X - screenBounds.X,
+                    cursorData.DrawPosition.Y - screenBounds.Y);
             }
 
             AvaloniaRegionCaptureRequest request = new AvaloniaRegionCaptureRequest
@@ -86,7 +84,10 @@ namespace ShareX
                 EnableAnnotations = !taskSettings.AdvancedSettings.RegionCaptureDisableAnnotation,
                 AllowMultipleRegions = true,
                 CursorBitmap = cursorBitmap,
-                CursorPosition = cursorPosition
+                CursorPosition = cursorPosition,
+                Toggles = new RegionCaptureToggles(
+                    OpenEditor: taskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.AnnotateImage),
+                    ShowCursor: taskSettings.CaptureSettings.ShowCursor)
             };
 
             AvaloniaRegionCaptureResult result = await RegionCaptureIntegration.CaptureAsync(request);
@@ -100,7 +101,12 @@ namespace ShareX
                 Bitmap output = result.Image.Copy();
                 TaskMetadata metadata = new TaskMetadata(output);
 
-                if (result.ImageModified)
+                // The editor toggle wins over skipping the editor for an image already annotated in region capture.
+                if (result.OpenEditorOverride == true)
+                {
+                    taskSettings.AfterCaptureJob = taskSettings.AfterCaptureJob.Add(AfterCaptureTasks.AnnotateImage);
+                }
+                else if (result.OpenEditorOverride == false || result.ImageModified)
                 {
                     AllowAnnotation = false;
                 }
